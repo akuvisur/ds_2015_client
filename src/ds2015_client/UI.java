@@ -11,6 +11,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -61,6 +62,7 @@ public class UI implements ActionListener {
 		statusWindow.setLineWrap(true);
 		mainPane.add(statusPane, "span 3");
 		
+		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jf.add(mainPane);
 		jf.setVisible(true);
 	}
@@ -91,7 +93,12 @@ public class UI implements ActionListener {
 				statusWindow.append("\nINTERNAL SERVER ERROR");
 			}
 			if (!Main.Working) {
-				try {HTTPconnector.start();} catch (HttpResponseException e1) {e1.printStackTrace();}
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						try {HTTPconnector.start();} catch (HttpResponseException e1) {e1.printStackTrace();}
+					}
+				});
 			}
 		}
 		if (e.getActionCommand().equals("disconnect")) {
@@ -100,13 +107,14 @@ public class UI implements ActionListener {
 			try {
 				response = HTTPconnector.disconnect(clientName.getText());
 				if (response.contains("Deleted")) {
+					Main.Connected = false;
+					Main.Working = false;
 					statusWindow.append("\nDisonnected.");
 					refresh();
 					connectButton.setActionCommand("connect");
 					connectButton.setText("Connect");
 					hostUrl.setEnabled(true);
 					clientName.setEnabled(true);
-					Main.Connected = false;
 					
 				}
 			} catch (HttpResponseException e1) {

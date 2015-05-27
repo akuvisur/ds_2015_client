@@ -5,7 +5,6 @@ import java.util.TimerTask;
 public class KeepAliveTask extends TimerTask {
 	@Override
 	public void run() {
-		System.out.println("keepalivetask");
-		if (Main.Connected) HTTPconnector.keepAlive();
+		if (Main.Connected && !Main.Working) System.out.println("keepalivetask"); HTTPconnector.keepAlive();
 	}
 }
