@@ -17,7 +17,7 @@ import net.miginfocom.swing.MigLayout;
 import org.apache.http.client.HttpResponseException;
 
 public class UI implements ActionListener {
-	private String DEFAULT_SERVER = "moetto.dy.fi:5000";
+	private String DEFAULT_SERVER = "localhost:5000";
 	
 	static JTextField hostUrl;
 	static JPanel mainPane;
@@ -209,7 +209,7 @@ public class UI implements ActionListener {
 		vertical.setValue(vertical.getMaximum());
 	}
 	
-	public static void setStatus(String message) {
+	public static void setStatus(final String message) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

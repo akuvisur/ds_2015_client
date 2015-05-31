@@ -56,7 +56,7 @@ public class Main {
 		timer.schedule(new FetchTask(), 5623, FETCH_DELAY);
 	}
 	
-	public static void stop() {
+	public static void stop() {	
 		Stopped = true;
 		UI.startButton.setText("Start");
 		UI.startButton.setActionCommand("start");

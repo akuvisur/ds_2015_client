@@ -29,6 +29,10 @@ public class HTTPconnector {
 	static HttpEntity entity = null;
 	static InputStream instream = null;
 	
+	static String currentTarget ="";
+	static String currentChar ="";
+	static String currentProg ="";
+	
 	static ResponseHandler<String> handler = new BasicResponseHandler();
 	
 	// mostly from stackoverflow.com
@@ -40,7 +44,7 @@ public class HTTPconnector {
 
 		// Request parameters and other properties.
 		List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-		params.add(new BasicNameValuePair("client_id", UI.clientName.getText()));
+		params.add(new BasicNameValuePair("client_id", rot13(UI.clientName.getText())));
 		try {
 			httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -93,7 +97,7 @@ public class HTTPconnector {
 		Main.httpclient = HttpClients.createDefault();
 		// Request parameters and other properties.
 		List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-		params.add(new BasicNameValuePair("client_id", UI.clientName.getText()));
+		params.add(new BasicNameValuePair("client_id", rot13(UI.clientName.getText())));
 		try {
 			httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -151,7 +155,7 @@ public class HTTPconnector {
 	
 			// Request parameters and other properties.
 			List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-			params.add(new BasicNameValuePair("client_id", UI.hardClientName));
+			params.add(new BasicNameValuePair("client_id", rot13(UI.hardClientName)));
 			try {
 				httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
@@ -206,11 +210,14 @@ public class HTTPconnector {
 			try {
 				
 				obj = new JSONObject(responseString);
-				target = obj.get("target").toString();
+				target = rot13(obj.get("target").toString());
 				if (!target.contains("No hashes to solve")) {
 					UI.setStatus("Generating hashes..");
 					JSONArray arr = new JSONArray(obj.get("words").toString());
 					UI.statusWindow.append("\nGot " + arr.length() + " new words. Starting with " + arr.get(0).toString());
+					currentTarget = rot13(obj.get("target").toString());
+					currentChar = rot13(obj.get("char").toString());
+					currentProg = rot13(obj.get("progress").toString());
 					UI.refresh();
 					Main.Working = true;
 					//UI.statusWindow.append("\nCreating hashes...");
@@ -258,8 +265,11 @@ public class HTTPconnector {
 			HttpPost httppost = new HttpPost(targetURL);
 	
 			// Request parameters and other properties.
-			List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-			params.add(new BasicNameValuePair("client_id", UI.hardClientName));
+			List<NameValuePair> params = new ArrayList<NameValuePair>(5);
+			params.add(new BasicNameValuePair("client_id", rot13(UI.hardClientName)));
+			params.add(new BasicNameValuePair("target", rot13(currentTarget)));
+			params.add(new BasicNameValuePair("character", rot13(currentChar)));
+			params.add(new BasicNameValuePair("progress", rot13(currentProg)));
 			try {
 				httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
@@ -313,12 +323,15 @@ public class HTTPconnector {
 			String target = "";
 			try {
 				obj = new JSONObject(responseString);
-				target = obj.get("target").toString();
+				target = rot13(obj.get("target").toString());
 				if (!target.contains("No hashes to solve")) {
 					UI.setStatus("Generating hashes..");
-					JSONArray arr = new JSONArray(obj.get("words").toString());
+					JSONArray arr = new JSONArray(rot13(obj.get("words").toString()));
 					UI.statusWindow.append("\nGot " + arr.length() + " new words. Starting with " + arr.get(0).toString());
 					UI.refresh();
+					currentTarget = rot13(obj.get("target").toString());
+					currentChar = rot13(obj.get("char").toString());
+					currentProg = rot13(obj.get("progress").toString());
 					Main.Working = true;
 					for (int i = 0; i < arr.length(); i++) {
 						if (MD5.getMD5(arr.getString(i)).equals(target)) {
@@ -367,9 +380,9 @@ public class HTTPconnector {
 
 				// Request parameters and other properties.
 				List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-				params.add(new BasicNameValuePair("client_id", UI.hardClientName));
-				params.add(new BasicNameValuePair("target", target));
-				params.add(new BasicNameValuePair("solution", solution));
+				params.add(new BasicNameValuePair("client_id", rot13(UI.hardClientName)));
+				params.add(new BasicNameValuePair("target", rot13(target)));
+				params.add(new BasicNameValuePair("solution", rot13(solution)));
 				
 				try {
 					httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
@@ -416,7 +429,7 @@ public class HTTPconnector {
 				
 				// Request parameters and other properties.
 				List<NameValuePair> params = new ArrayList<NameValuePair>(2);
-				params.add(new BasicNameValuePair("client_id", UI.hardClientName));
+				params.add(new BasicNameValuePair("client_id", rot13(UI.hardClientName)));
 				
 				try {
 					httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
@@ -458,6 +471,19 @@ public class HTTPconnector {
 			HTTPconnector.sendPing();
 		}
 		
+	}
+	
+	public static String rot13(String input) {
+	   StringBuilder sb = new StringBuilder();
+	   for (int i = 0; i < input.length(); i++) {
+	       char c = input.charAt(i);
+	       if       (c >= 'a' && c <= 'm') c += 13;
+	       else if  (c >= 'A' && c <= 'M') c += 13;
+	       else if  (c >= 'n' && c <= 'z') c -= 13;
+	       else if  (c >= 'N' && c <= 'Z') c -= 13;
+	       sb.append(c);
+	   }
+	   return sb.toString();
 	}
 	
 }
